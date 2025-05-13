@@ -24,13 +24,12 @@ A Discord bot that streams audio from your computer's line-in (e.g., a record pl
 - FFmpeg installed and available in your system PATH
 - A Discord bot token
 - A #music text channel in your server (for album info posts)
-- (Optional) ACRCloud credentials for music recognition (if you want to enable that feature)
 
 ## Setup
 
 1. **Clone the repository:**
    ```bash
-   git clone <your-repo-url>
+   git clone https://github.com/jarekjar/record-player-bot
    cd record-player
    ```
 2. **Install dependencies:**
@@ -38,7 +37,7 @@ A Discord bot that streams audio from your computer's line-in (e.g., a record pl
    npm install
    ```
 3. **Configure environment variables:**
-   - Copy `.env.example` to `.env` and fill in your Discord bot token and (optionally) ACRCloud credentials.
+   - Copy `.env.example` to `.env` and fill in your Discord bot token.
 4. **Run the bot:**
    ```bash
    node src/index.js

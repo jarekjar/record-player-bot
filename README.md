@@ -40,10 +40,17 @@ A Discord bot that streams audio from your computer's audio input (e.g., a recor
    ```
 
 3. **Configure environment variables:**
-   Create a `.env` file in the root directory:
+   Create a `.env` file in the root directory with the following variables:
    ```
    DISCORD_TOKEN=your_discord_bot_token_here
+   APPLICATION_ID=your_application_id_here
+   PUBLIC_KEY=your_public_key_here
    ```
+
+   You can find these values in the [Discord Developer Portal](https://discord.com/developers/applications):
+   - **DISCORD_TOKEN** - Bot → Token (click "Reset Token" if you don't have one)
+   - **APPLICATION_ID** - General Information → Application ID
+   - **PUBLIC_KEY** - General Information → Public Key
 
 4. **Run the bot:**
    ```bash

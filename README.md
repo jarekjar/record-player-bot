@@ -1,52 +1,83 @@
 # Record Player Discord Bot
 
-A Discord bot that streams audio from your computer's line-in (e.g., a record player or other audio source) into a Discord voice channel, and provides music/album info features for your community.
+A Discord bot that streams audio from your computer's audio input (e.g., a record player, mixer, or other audio source) into a Discord voice channel, with album artwork and info features.
 
 ## Features
 
-- **Stream Line-In Audio:** Joins a voice channel and streams live audio from your computer's "Line In" device.
-- **Now Spinning Album Info:** Use `!spin <artist> - <album>` to announce what record is playing. The bot fetches album artwork and info from iTunes and posts it in the channel.
-- **Dynamic Bot Activity:** The bot's activity status updates to show the current record being spun.
-- **Manual Album Announce:** Use `!album <album info>` to manually post album info to the #music channel.
-- **Auto-Disconnect:** The bot will disconnect from the voice channel after 5 minutes of inactivity.
-- **Fun Commands:** Includes a fun `!buttcheese` command.
+- **Audio Device Selection:** On startup, the bot lists all available audio input devices and lets you choose which one to stream from.
+- **Stream Audio to Discord:** Joins a voice channel and streams live audio from your selected input device.
+- **Album Info & Artwork:** Use `!spin <artist> - <album>` to announce what's playing. The bot fetches album artwork from iTunes and displays it in the channel.
+- **Dynamic Bot Activity:** The bot's Discord status updates to show the current record being spun.
+- **Auto-Disconnect:** The bot automatically disconnects after 15 seconds of audio inactivity.
 
 ## Commands
 
-- `!spin [artist] - [album]` — Joins your voice channel, streams line-in audio, and posts album info/artwork.
-- `!nospin` — Disconnects the bot from the voice channel.
-- `!album <album info>` — Posts album info to the #music channel.
-- `!buttcheese` — Replies with a fun message.
+| Command | Description |
+|---------|-------------|
+| `!spin` | Joins your voice channel and starts streaming audio |
+| `!spin <search>` | Joins, streams, and displays album info/artwork (searches iTunes) |
+| `!nospin` | Stops streaming and disconnects from the voice channel |
+| `!buttcheese` | A fun easter egg command |
 
 ## Requirements
 
-- Node.js (v16 or higher recommended)
-- FFmpeg installed and available in your system PATH
-- A Discord bot token
-- A #music text channel in your server (for album info posts)
+- **Node.js** v16 or higher
+- **FFmpeg** installed and available in your system PATH
+- A **Discord bot token**
+- An audio input device (line-in, USB audio interface, etc.)
 
 ## Setup
 
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/jarekjar/record-player-bot
-   cd record-player
+   cd record-player-bot
    ```
+
 2. **Install dependencies:**
    ```bash
    npm install
    ```
+
 3. **Configure environment variables:**
-   - Copy `.env.example` to `.env` and fill in your Discord bot token.
-4. **Run the bot:**
-   ```bash
-   node src/index.js
+   Create a `.env` file in the root directory:
+   ```
+   DISCORD_TOKEN=your_discord_bot_token_here
    ```
 
+4. **Run the bot:**
+   ```bash
+   npm run start
+   ```
+
+5. **Select your audio device:**
+   When the bot starts, you'll see a list of available audio devices:
+   ```
+   🎵 Available Audio Devices:
+
+     1. Microphone (Realtek High Definition Audio)
+     2. Line In (USB Audio Device)
+     3. Loopback (Audio Interface)
+
+   Select audio device number for your record player: 2
+
+   ✅ Selected: Line In (USB Audio Device)
+
+   🔌 Connecting to Discord...
+   ```
+
+## Usage
+
+1. Join a voice channel in your Discord server
+2. Type `!spin` to have the bot join and start streaming
+3. Optionally include album info: `!spin The Beatles - Abbey Road`
+4. Type `!nospin` when you're done
+
 ## Notes
-- Make sure your "Line In" device is enabled and receiving audio on your computer.
-- The bot uses the iTunes API to fetch album artwork and info.
-- The bot will only post album info/artwork if you provide it after `!spin`.
+
+- This bot is designed for **Windows** and uses DirectShow for audio capture.
+- Make sure your audio source is connected and the input levels are set correctly.
+- The bot uses the iTunes Search API for album artwork (no API key required).
 
 ---
 

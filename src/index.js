@@ -1,8 +1,91 @@
 require('dotenv').config();
 const { Client, GatewayIntentBits, Events } = require('discord.js');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
-const { spawn } = require('child_process');
+const { spawn, execSync } = require('child_process');
 const https = require('https');
+const readline = require('readline');
+
+// Store the selected audio device
+let selectedAudioDevice = null;
+
+// Function to list available audio devices using ffmpeg
+function listAudioDevices() {
+    return new Promise((resolve) => {
+        const ffmpeg = spawn('ffmpeg', [
+            '-list_devices', 'true',
+            '-f', 'dshow',
+            '-i', 'dummy'
+        ], { shell: true });
+
+        let output = '';
+        ffmpeg.stderr.on('data', (data) => {
+            output += data.toString();
+        });
+
+        ffmpeg.on('error', (err) => {
+            console.log('❌ Error running ffmpeg:', err.message);
+            console.log('Make sure ffmpeg is installed and in your PATH.');
+            resolve([]);
+        });
+
+        ffmpeg.on('close', () => {
+            // Parse audio devices from ffmpeg output
+            // Format: [dshow @ addr] "Device Name" (audio)
+            const devices = [];
+            const lines = output.split(/\r?\n/);
+
+            for (const line of lines) {
+                // Match lines that end with (audio) and contain a quoted device name
+                if (line.includes('(audio)') && !line.toLowerCase().includes('alternative name')) {
+                    const match = line.match(/"([^"]+)"/);
+                    if (match) {
+                        devices.push(match[1]);
+                    }
+                }
+            }
+            
+            resolve(devices);
+        });
+    });
+}
+
+// Function to prompt user to select an audio device
+async function selectAudioDevice() {
+    const devices = await listAudioDevices();
+    
+    if (devices.length === 0) {
+        console.log('\n❌ No audio devices found! Make sure ffmpeg is installed and audio devices are connected.');
+        process.exit(1);
+    }
+
+    console.log('\n🎵 Available Audio Devices:\n');
+    devices.forEach((device, index) => {
+        console.log(`  ${index + 1}. ${device}`);
+    });
+    console.log();
+
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+
+    return new Promise((resolve) => {
+        rl.question('Select audio device number for your record player: ', (answer) => {
+            rl.close();
+            const index = parseInt(answer) - 1;
+            if (index >= 0 && index < devices.length) {
+                selectedAudioDevice = devices[index];
+                console.log(`\n✅ Selected: ${selectedAudioDevice}\n`);
+                resolve(selectedAudioDevice);
+            } else {
+                console.log('\n❌ Invalid selection. Using first device.');
+                selectedAudioDevice = devices[0];
+                console.log(`\n✅ Selected: ${selectedAudioDevice}\n`);
+                resolve(selectedAudioDevice);
+            }
+        });
+    });
+}
 
 // Create a new client instance
 const client = new Client({
@@ -27,7 +110,7 @@ function createLineInStream() {
     // Use ffmpeg to capture audio from line-in
     const ffmpeg = spawn('ffmpeg', [
         '-f', 'dshow',           // Use DirectShow for Windows
-        '-i', 'audio=Line In (Realtek(R) Audio)',   // Select Line In as input
+        '-i', `audio=${selectedAudioDevice}`,   // Use selected audio device
         '-f', 's16le',           // Output format: signed 16-bit little-endian
         '-ar', '48000',          // Sample rate: 48kHz
         '-ac', '2',              // 2 channels (stereo)
@@ -194,5 +277,11 @@ client.on(Events.MessageCreate, async message => {
     }
 });
 
-// Log in to Discord with your client's token
-client.login(process.env.DISCORD_TOKEN); 
+// Start the bot - first select audio device, then log in to Discord
+async function start() {
+    await selectAudioDevice();
+    console.log('🔌 Connecting to Discord...\n');
+    client.login(process.env.DISCORD_TOKEN);
+}
+
+start(); 

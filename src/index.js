@@ -85,6 +85,7 @@ let inactivityTimeout = null;
 let awaitingStream = false;
 let audioStream = null;
 let streamWs = null;
+let waitingStreamMessage = null;
 
 function createLineInStream() {
     return spawn('ffmpeg', [
@@ -174,7 +175,7 @@ client.on(Events.MessageCreate, async (message) => {
             if (USE_REMOTE_STREAM) {
                 awaitingStream = true;
                 audioStream = new PassThrough();
-                await message.reply('⏳ **Waiting for stream...** Run the relay on your PC: `node scripts/relay.js`');
+                waitingStreamMessage = await message.reply('⏳ **Waiting for stream...** Run the relay on your PC: `node scripts/relay.js`');
                 // Play will start when relay connects (handled in WebSocket handler)
             } else {
                 const lineInStream = createLineInStream();
@@ -259,6 +260,8 @@ async function start() {
             resource.volume?.setVolume(2);
             player.play(resource);
             awaitingStream = false;
+            waitingStreamMessage?.edit('🔴 **Streaming!**').catch(() => {});
+            waitingStreamMessage = null;
 
             let chunkCount = 0;
             ws.on('message', (data) => {

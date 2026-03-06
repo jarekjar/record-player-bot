@@ -80,7 +80,6 @@ async function run() {
         ffmpeg.stdout.on('data', (chunk) => {
             if (ws.readyState === WebSocket.OPEN) ws.send(chunk);
         });
-        ffmpeg.stderr.on('data', () => {});
 
         ffmpeg.on('close', (code) => {
             if (code !== 0) console.log('ffmpeg exited:', code);

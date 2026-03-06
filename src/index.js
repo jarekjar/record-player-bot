@@ -256,12 +256,17 @@ async function start() {
         function startStreaming(ws) {
             streamWs = ws;
             const resource = createAudioResource(audioStream, { inputType: 'raw', inlineVolume: true });
+            resource.volume?.setVolume(2);
             player.play(resource);
             awaitingStream = false;
 
+            let chunkCount = 0;
             ws.on('message', (data) => {
-                if (Buffer.isBuffer(data) && audioStream && !audioStream.destroyed) {
-                    audioStream.write(data);
+                if (!audioStream || audioStream.destroyed) return;
+                const chunk = Buffer.isBuffer(data) ? data : Buffer.from(data);
+                if (chunk.length > 0) {
+                    audioStream.write(chunk);
+                    if (++chunkCount === 1) console.log('[Stream] Receiving audio');
                 }
             });
             ws.on('close', () => {

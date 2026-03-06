@@ -16,7 +16,8 @@
     "form-data": "^4.0.2",
     "node-fetch": "^3.3.2",
     "opusscript": "^0.0.8",
-    "play-dl": "^1.9.7"
+    "play-dl": "^1.9.7",
+    "ws": "^8.19.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.3"

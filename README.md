@@ -1,91 +1,69 @@
-# Record Player Discord Bot
+# Discord Record Player Bot (Python)
 
-A Discord bot that streams audio from your computer's audio input (e.g., a record player, mixer, or other audio source) into a Discord voice channel, with album artwork and info features.
+Stream audio from your PC's line-in/record player to Discord voice channels. Choose your audio input device at startup, then use `!spin` to start streaming and `!nospin` to stop.
 
 ## Features
 
-- **Audio Device Selection:** On startup, the bot lists all available audio input devices and lets you choose which one to stream from.
-- **Stream Audio to Discord:** Joins a voice channel and streams live audio from your selected input device.
-- **Album Info & Artwork:** Use `!spin <artist> - <album>` to announce what's playing. The bot fetches album artwork from iTunes and displays it in the channel.
-- **Dynamic Bot Activity:** The bot's Discord status updates to show the current record being spun.
-- **Auto-Disconnect:** The bot automatically disconnects after 15 seconds of audio inactivity.
+- **Audio device selection** — Pick your record player/line-in device at startup (Windows dshow via ffmpeg)
+- **!spin** — Join your voice channel and stream audio from the selected device
+- **!spin Artist - Album** — Same as above, plus fetches album artwork from the iTunes API and displays it
+- **!nospin** — Stop streaming and leave the voice channel
+- **!spin test** — Play a test URL to verify the bot works (no line-in needed)
+
+## Requirements
+
+- **Python 3.10+**
+- **ffmpeg** — Must be installed and in your PATH ([download](https://ffmpeg.org/download.html))
+- **Discord Bot Token** — Create a bot at [Discord Developer Portal](https://discord.com/developers/applications)
+
+## Setup
+
+1. **Create a virtual environment** (recommended):
+
+   ```bash
+   cd record-player-python
+   python -m venv venv
+   venv\Scripts\activate   # Windows
+   # or: source venv/bin/activate  # macOS/Linux
+   ```
+
+2. **Install dependencies**:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Configure the bot**:
+
+   - Copy `.env.example` to `.env`
+   - Add your Discord bot token to `.env`:
+     ```
+     DISCORD_TOKEN=your_bot_token_here
+     ```
+
+4. **Enable Discord intents** (in Developer Portal → Bot):
+
+   - Message Content Intent
+   - Server Members Intent (if needed)
+
+## Run
+
+```bash
+python bot.py
+```
+
+On startup, you'll be prompted to select an audio device. Choose the one connected to your record player (e.g. Line In, USB audio interface).
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
-| `!spin` | Joins your voice channel and starts streaming audio |
-| `!spin <search>` | Joins, streams, and displays album info/artwork (searches iTunes) |
-| `!nospin` | Stops streaming and disconnects from the voice channel |
-| `!buttcheese` | A fun easter egg command |
+| `!spin` | Start streaming from your record player |
+| `!spin Pink Floyd - Dark Side of the Moon` | Stream + show album artwork from iTunes |
+| `!spin test` | Play a test MP3 from URL (no line-in) |
+| `!nospin` | Stop streaming and leave the voice channel |
 
-## Requirements
+## Windows Notes
 
-- **Node.js** v16 or higher
-- **FFmpeg** installed and available in your system PATH
-- A **Discord bot token**
-- An audio input device (line-in, USB audio interface, etc.)
-
-## Setup
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/jarekjar/record-player-bot
-   cd record-player-bot
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-3. **Configure environment variables:**
-   Create a `.env` file in the root directory with the following variables:
-   ```
-   DISCORD_TOKEN=your_discord_bot_token_here
-   APPLICATION_ID=your_application_id_here
-   PUBLIC_KEY=your_public_key_here
-   ```
-
-   You can find these values in the [Discord Developer Portal](https://discord.com/developers/applications):
-   - **DISCORD_TOKEN** - Bot → Token (click "Reset Token" if you don't have one)
-   - **APPLICATION_ID** - General Information → Application ID
-   - **PUBLIC_KEY** - General Information → Public Key
-
-4. **Run the bot:**
-   ```bash
-   npm run start
-   ```
-
-5. **Select your audio device:**
-   When the bot starts, you'll see a list of available audio devices:
-   ```
-   🎵 Available Audio Devices:
-
-     1. Microphone (Realtek High Definition Audio)
-     2. Line In (USB Audio Device)
-     3. Loopback (Audio Interface)
-
-   Select audio device number for your record player: 2
-
-   ✅ Selected: Line In (USB Audio Device)
-
-   🔌 Connecting to Discord...
-   ```
-
-## Usage
-
-1. Join a voice channel in your Discord server
-2. Type `!spin` to have the bot join and start streaming
-3. Optionally include album info: `!spin The Beatles - Abbey Road`
-4. Type `!nospin` when you're done
-
-## Notes
-
-- This bot is designed for **Windows** and uses DirectShow for audio capture.
-- Make sure your audio source is connected and the input levels are set correctly.
-- The bot uses the iTunes Search API for album artwork (no API key required).
-
----
-
-Enjoy spinning records with your Discord community! 
+- Uses **DirectShow (dshow)** for audio capture — ensure your line-in is set as the default recording device or select it when prompted
+- Check **Sound Settings → Recording** and ensure your Line In isn't muted and has adequate levels
